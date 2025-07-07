@@ -29,6 +29,9 @@ namespace DelayedQ.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<JsonElement>("CallbackPayload")
                         .HasColumnType("jsonb");
 
@@ -53,10 +56,7 @@ namespace DelayedQ.Migrations
                         .HasColumnType("character varying(50)")
                         .HasDefaultValue("Pending");
 
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("EventId");
+                    b.HasKey("EventId", "Timestamp");
 
                     b.HasIndex("CreatedAt");
 

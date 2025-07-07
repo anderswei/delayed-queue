@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DelayedQ.Migrations
 {
     [DbContext(typeof(DelayedQDbContext))]
-    [Migration("20250707175630_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250707203904_InitialCreateWithPartitioning")]
+    partial class InitialCreateWithPartitioning
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,6 +31,9 @@ namespace DelayedQ.Migrations
                     b.Property<string>("EventId")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<JsonElement>("CallbackPayload")
                         .HasColumnType("jsonb");
@@ -56,10 +59,7 @@ namespace DelayedQ.Migrations
                         .HasColumnType("character varying(50)")
                         .HasDefaultValue("Pending");
 
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("EventId");
+                    b.HasKey("EventId", "Timestamp");
 
                     b.HasIndex("CreatedAt");
 
