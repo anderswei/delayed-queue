@@ -1,0 +1,81 @@
+@DelayedQ_HostAddress = https://localhost:5001
+
+### Create a new job with HTTP callback
+POST {{DelayedQ_HostAddress}}/job
+Content-Type: application/json
+
+{
+  "eventId": "test-event-123",
+  "callbackPayload": {
+    "message": "Hello, World!",
+    "timestamp": "2024-01-01T00:00:00Z",
+    "data": {
+      "userId": 12345,
+      "action": "process_order"
+    }
+  },
+  "callbackType": "HTTP",
+  "callbackUrl": "https://example.com/callback",
+  "timestamp": "2024-01-01T10:00:00Z"
+}
+
+### Create a job with SQS callback
+POST {{DelayedQ_HostAddress}}/job
+Content-Type: application/json
+
+{
+  "eventId": "sqs-event-456",
+  "callbackPayload": {
+    "orderId": "ORD-789",
+    "customerEmail": "customer@example.com",
+    "amount": 99.99
+  },
+  "callbackType": "SQS",
+  "callbackUrl": "https://sqs.us-east-1.amazonaws.com/123456789012/my-queue",
+  "timestamp": "2024-01-01T15:30:00Z"
+}
+
+### Get all jobs
+GET {{DelayedQ_HostAddress}}/job
+
+### Get a specific job by EventId
+GET {{DelayedQ_HostAddress}}/job/test-event-123
+
+### Get a specific job by EventId (SQS example)
+GET {{DelayedQ_HostAddress}}/job/sqs-event-456
+
+### ======================
+### PARTITION MANAGEMENT
+### ======================
+
+### Create daily partitions (7 days by default)
+POST {{DelayedQ_HostAddress}}/partition
+Content-Type: application/json
+
+{
+  "startDate": "2024-01-01T00:00:00Z",
+  "numberOfDays": 7
+}
+
+### Create daily partitions for a month
+POST {{DelayedQ_HostAddress}}/partition
+Content-Type: application/json
+
+{
+  "startDate": "2024-01-01T00:00:00Z",
+  "numberOfDays": 31
+}
+
+### Create daily partitions for next week
+POST {{DelayedQ_HostAddress}}/partition
+Content-Type: application/json
+
+{
+  "startDate": "2024-07-07T00:00:00Z",
+  "numberOfDays": 7
+}edQ_HostAddress = http://localhost:5218
+
+GET {{DelayedQ_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
