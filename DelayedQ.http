@@ -44,6 +44,50 @@ GET {{DelayedQ_HostAddress}}/job/test-event-123
 ### Get a specific job by EventId (SQS example)
 GET {{DelayedQ_HostAddress}}/job/sqs-event-456
 
+### Update a job
+PUT {{DelayedQ_HostAddress}}/job/test-event-123
+Content-Type: application/json
+
+{
+  "callbackPayload": {
+    "message": "Updated Hello, World!",
+    "timestamp": "2024-01-01T00:00:00Z",
+    "data": {
+      "userId": 12345,
+      "action": "process_updated_order",
+      "priority": "high"
+    }
+  },
+  "callbackType": "HTTP",
+  "callbackUrl": "https://updated-example.com/callback",
+  "timestamp": "2024-01-01T12:00:00Z",
+  "status": "Updated"
+}
+
+### Update job status to executed
+PUT {{DelayedQ_HostAddress}}/job/test-event-123
+Content-Type: application/json
+
+{
+  "callbackPayload": {
+    "message": "Job completed successfully",
+    "result": "success"
+  },
+  "callbackType": "HTTP",
+  "callbackUrl": "https://example.com/callback",
+  "timestamp": "2024-01-01T10:00:00Z",
+  "status": "Executed"
+}
+
+### Cancel a job
+DELETE {{DelayedQ_HostAddress}}/job/test-event-123
+
+### Cancel SQS job
+DELETE {{DelayedQ_HostAddress}}/job/sqs-event-456
+
+### Try to cancel a non-existent job (will return 404)
+DELETE {{DelayedQ_HostAddress}}/job/non-existent-event
+
 ### ======================
 ### PARTITION MANAGEMENT
 ### ======================

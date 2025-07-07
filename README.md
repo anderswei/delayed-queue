@@ -42,8 +42,34 @@ Create a new job with callback support.
 ### GET /job/{eventId}
 Retrieve a specific job by EventId.
 
-### GET /job
-Retrieve all jobs.
+### PUT /job/{eventId}
+Update an existing job by EventId.
+
+**Request Body:**
+```json
+{
+  "callbackPayload": {}, // Any JSON object
+  "callbackType": "HTTP" | "SQS",
+  "callbackUrl": "string", // HTTP URL or SQS queue URL
+  "timestamp": "datetime", // When the job should be executed
+  "status": "string" // Optional: job status
+}
+```
+
+**Response:**
+```json
+{
+  "eventId": "string",
+  "callbackPayload": {},
+  "callbackType": "HTTP" | "SQS",
+  "callbackUrl": "string",
+  "timestamp": "datetime",
+  "createdAt": "datetime",
+  "executedAt": "datetime?", // Automatically set when status is "Executed" or "Completed"
+  "status": "string"
+}
+```
+
 
 ## Partition Management
 

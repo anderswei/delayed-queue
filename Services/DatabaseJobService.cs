@@ -75,6 +75,56 @@ namespace DelayedQ.Services
             return MapToResponse(job);
         }
 
+        public async Task<JobResponse?> UpdateJobAsync(string eventId, UpdateJobRequest request)
+        {
+            var job = await _context.Jobs.FirstOrDefaultAsync(j => j.EventId == eventId);
+            
+            if (job == null)
+                return null;
+
+            // Update the job properties
+            job.CallbackPayload = request.CallbackPayload;
+            job.CallbackType = request.CallbackType;
+            job.CallbackUrl = request.CallbackUrl;
+            job.Timestamp = request.Timestamp;
+            
+            if (!string.IsNullOrEmpty(request.Status))
+            {
+                job.Status = request.Status;
+            }
+
+            // If status is being set to executed, update ExecutedAt
+            if (request.Status?.ToLower() == "executed" || request.Status?.ToLower() == "completed")
+            {
+                job.ExecutedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return MapToResponse(job);
+        }
+
+        public async Task<bool> CancelJobAsync(string eventId)
+        {
+            var job = await _context.Jobs.FirstOrDefaultAsync(j => j.EventId == eventId);
+            
+            if (job == null)
+                return false;
+
+            // Check if job is already executed or completed
+            if (job.Status?.ToLower() == "executed" || job.Status?.ToLower() == "completed")
+            {
+                return false; // Cannot cancel already executed jobs
+            }
+
+            // Update job status to cancelled
+            job.Status = "Cancelled";
+            job.ExecutedAt = DateTime.UtcNow; // Mark when it was cancelled
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<IEnumerable<JobResponse>> GetJobsAsync()
         {
             var jobs = await _context.Jobs

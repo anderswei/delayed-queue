@@ -34,4 +34,22 @@ namespace DelayedQ.DTOs
         public DateTime? ExecutedAt { get; set; }
         public string? Status { get; set; }
     }
+
+    public class UpdateJobRequest
+    {
+        [Required]
+        public JsonElement CallbackPayload { get; set; }
+        
+        [Required]
+        public CallbackType CallbackType { get; set; }
+        
+        [Required]
+        [Url]
+        public string CallbackUrl { get; set; } = string.Empty;
+        
+        [Required]
+        public DateTime Timestamp { get; set; }
+        
+        public string? Status { get; set; }
+    }
 }
