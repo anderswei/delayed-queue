@@ -1,5 +1,9 @@
 @DelayedQ_HostAddress = https://localhost:5001
 
+### ======================
+### PRECISE TIMING JOBS (PostgreSQL)
+### ======================
+
 ### Create a new job with HTTP callback
 POST {{DelayedQ_HostAddress}}/job
 Content-Type: application/json
@@ -87,6 +91,81 @@ DELETE {{DelayedQ_HostAddress}}/job/sqs-event-456
 
 ### Try to cancel a non-existent job (will return 404)
 DELETE {{DelayedQ_HostAddress}}/job/non-existent-event
+
+### ======================
+### LOW-PRECISION JOBS (DynamoDB-style)
+### ======================
+
+### Create a new low-precision job with HTTP callback
+POST {{DelayedQ_HostAddress}}/low-precision-job
+Content-Type: application/json
+
+{
+  "eventId": "low-precision-event-123",
+  "callbackPayload": {
+    "message": "Low-Precision Job",
+    "data": {
+      "userId": 12345,
+      "action": "cleanup_old_data"
+    }
+  },
+  "callbackType": "HTTP",
+  "callbackUrl": "https://example.com/low-precision-callback",
+  "targetExecutionTime": "2024-01-02T10:00:00Z"
+}
+
+### Create a low-precision job with SQS callback
+POST {{DelayedQ_HostAddress}}/low-precision-job
+Content-Type: application/json
+
+{
+  "eventId": "low-precision-sqs-event-456",
+  "callbackPayload": {
+    "orderId": "ORD-LP-789",
+    "customerEmail": "customer@example.com",
+    "action": "send_reminder"
+  },
+  "callbackType": "SQS",
+  "callbackUrl": "https://sqs.us-east-1.amazonaws.com/123456789012/low-precision-queue",
+  "targetExecutionTime": "2024-01-03T15:30:00Z"
+}
+
+### Get a specific low-precision job by EventId
+GET {{DelayedQ_HostAddress}}/low-precision-job/low-precision-event-123
+
+### Get a specific low-precision job by EventId (SQS example)
+GET {{DelayedQ_HostAddress}}/low-precision-job/low-precision-sqs-event-456
+
+### Update a low-precision job
+PUT {{DelayedQ_HostAddress}}/low-precision-job/low-precision-event-123
+Content-Type: application/json
+
+{
+  "callbackPayload": {
+    "message": "Updated Low-Precision Job",
+    "data": {
+      "userId": 12345,
+      "action": "updated_cleanup_old_data",
+      "priority": "high"
+    }
+  },
+  "callbackType": "HTTP",
+  "callbackUrl": "https://updated-example.com/low-precision-callback",
+  "targetExecutionTime": "2024-01-02T12:00:00Z",
+  "status": "Updated"
+}
+
+### Cancel a low-precision job
+DELETE {{DelayedQ_HostAddress}}/low-precision-job/low-precision-event-123
+
+### Cancel SQS low-precision job
+DELETE {{DelayedQ_HostAddress}}/low-precision-job/low-precision-sqs-event-456
+
+### Try to cancel a non-existent low-precision job (will return 404)
+DELETE {{DelayedQ_HostAddress}}/low-precision-job/non-existent-low-precision-event
+
+### Get low-precision jobs by date
+GET {{DelayedQ_HostAddress}}/low-precision-job/by-date/2024-01-02T00:00:00Z
 
 ### ======================
 ### PARTITION MANAGEMENT

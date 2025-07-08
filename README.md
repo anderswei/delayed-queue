@@ -70,6 +70,103 @@ Update an existing job by EventId.
 }
 ```
 
+### DELETE /job/{eventId}
+Cancel a job by EventId.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Job with EventId {eventId} has been cancelled successfully"
+}
+```
+
+## Low-Precision Job Endpoints
+
+The low-precision job endpoints are designed for jobs that don't require precise timing but can benefit from DynamoDB-style TTL (Time-To-Live) mechanisms. These jobs have a precision variance of up to 48 hours, making them suitable for cleanup tasks, reminder notifications, or other non-critical scheduled operations.
+
+### POST /low-precision-job
+Create a new low-precision job using DynamoDB TTL mechanism.
+
+**Request Body:**
+```json
+{
+  "eventId": "string", // Unique event identifier
+  "callbackPayload": {}, // Any JSON object
+  "callbackType": "HTTP" | "SQS",
+  "callbackUrl": "string", // HTTP URL or SQS queue URL
+  "targetExecutionTime": "datetime" // When the job should be executed (ISO 8601 format)
+}
+```
+
+**Response:**
+```json
+{
+  "eventId": "string",
+  "callbackPayload": {},
+  "callbackType": "HTTP" | "SQS",
+  "callbackUrl": "string",
+  "targetExecutionTime": "datetime",
+  "ttlTimestamp": "long", // Unix timestamp for DynamoDB TTL
+  "createdAt": "datetime",
+  "executedAt": "datetime?",
+  "status": "string",
+  "partitionKey": "string", // Date-based partition key (yyyy-MM-dd)
+  "sortKey": "string" // EventId
+}
+```
+
+### GET /low-precision-job/{eventId}
+Retrieve a specific low-precision job by EventId.
+
+### PUT /low-precision-job/{eventId}
+Update an existing low-precision job by EventId.
+
+**Request Body:**
+```json
+{
+  "callbackPayload": {}, // Any JSON object
+  "callbackType": "HTTP" | "SQS",
+  "callbackUrl": "string", // HTTP URL or SQS queue URL
+  "targetExecutionTime": "datetime", // When the job should be executed
+  "status": "string" // Optional: job status
+}
+```
+
+### DELETE /low-precision-job/{eventId}
+Cancel a low-precision job by EventId.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Low-precision job with EventId {eventId} has been cancelled successfully"
+}
+```
+
+### GET /low-precision-job/by-date/{date}
+Retrieve all low-precision jobs for a specific date.
+
+**Example:** `GET /low-precision-job/by-date/2024-01-01T00:00:00Z`
+
+**Response:**
+```json
+[
+  {
+    "eventId": "string",
+    "callbackPayload": {},
+    "callbackType": "HTTP" | "SQS",
+    "callbackUrl": "string",
+    "targetExecutionTime": "datetime",
+    "ttlTimestamp": "long",
+    "createdAt": "datetime",
+    "executedAt": "datetime?",
+    "status": "string",
+    "partitionKey": "string",
+    "sortKey": "string"
+  }
+]
+```
 
 ## Partition Management
 
@@ -287,3 +384,13 @@ This is the foundation for the DelayedQ API. Additional features to be implement
 3. Database persistence
 4. Authentication and authorization
 5. Background job processing
+
+## Job Types Comparison
+
+| Feature | Precise Jobs (`/job`) | Low-Precision Jobs (`/low-precision-job`) |
+|---------|----------------------|-------------------------------------------|
+| **Timing Precision** | Exact timestamp | ±48 hours variance |
+| **Storage** | PostgreSQL (partitioned) | In-memory (DynamoDB in production) |
+| **Use Cases** | Critical scheduled tasks | Cleanup, reminders, non-critical |
+| **Scalability** | High (with partitioning) | Very high (DynamoDB) |
+| **Cost** | Higher (precise timing) | Lower (eventual consistency) |

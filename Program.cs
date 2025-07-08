@@ -21,6 +21,7 @@ builder.Services.AddDbContext<DelayedQDbContext>(options =>
 // Register custom services
 builder.Services.AddScoped<IJobService, DatabaseJobService>();
 builder.Services.AddScoped<IPartitionService, PartitionService>();
+builder.Services.AddScoped<ILowPrecisionJobService, InMemoryLowPrecisionJobService>(); // In-memory implementation for now
 
 var app = builder.Build();
 
